@@ -1,0 +1,47 @@
+from PIL import Image
+from customtkinter import (
+    CTkImage,
+    CTkButton
+)
+from .state_manager import app_state
+
+class ToggleButton(CTkButton):
+    def __init__(self, master, active_text: str, idle_text: str, active_img: str = None, idle_img: str = None, toggle_callback=None, width = 140, height = 28, corner_radius = None, icon_size=(20, 20), **kwargs):
+        
+        self.idle_text = idle_text
+        self.active_text = active_text
+        self.active_img = Image.open(app_state.get_asset_path(f"assets/{active_img}"))
+        self.idle_img = Image.open(app_state.get_asset_path(f"assets/{idle_img}"))
+        self.is_active = False
+        self.icon_size = icon_size
+        self.toggle_callback = toggle_callback
+        
+        default_icon = CTkImage(
+            light_image=self.idle_img,
+            dark_image=self.idle_img,
+            size=self.icon_size
+        )
+        super().__init__(master, width, height, corner_radius, text=idle_text, command=self.toggle, image=default_icon,  **kwargs)
+        
+        # self.toggle()
+    
+    def toggle(self):
+        if not self.is_active:
+            icon = CTkImage(
+                light_image=self.active_img,
+                dark_image=self.active_img,
+                size=self.icon_size
+            )
+            self.configure(image=icon, text=self.active_text)
+            self.is_active = True
+        else:
+            icon = CTkImage(
+                light_image=self.idle_img,
+                dark_image=self.idle_img,
+                size=self.icon_size
+            )
+            self.configure(image=icon, text=self.idle_text)
+            self.is_active = False
+        
+        if self.toggle_callback:
+            self.toggle_callback()

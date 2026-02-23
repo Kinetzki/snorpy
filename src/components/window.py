@@ -1,13 +1,18 @@
-import customtkinter as ctk
-from .icon_button import StateButton
+from customtkinter import (
+    CTk,
+    CTkFrame
+)
 from .state_manager import app_state
+from .sidebar import Sidebar
+from .tab_view import TabView
+from .general_tabs.proxy_tab import ProxyTab
 
-class MainWindow(ctk.CTk):
+class MainWindow(CTk):
     def __init__(
         self,
         title: str,
         window_size: str,
-        fg_color = None,
+        fg_color="#ffffff",
         **kwargs
     ):
         super().__init__(fg_color, **kwargs)
@@ -16,10 +21,44 @@ class MainWindow(ctk.CTk):
         self.title(title)
         
         self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=0)
         self.grid_rowconfigure(0, weight=1)
         
-        self.button = StateButton(self, "Click", app_state.toggle_listener)
-        self.button.pack(side="left", padx=4)
-    
+        self.sidebar = Sidebar(self, width=200)
+        
+        self.main_panel = CTkFrame(self, corner_radius=0, fg_color="#161616")
+        self.main_panel.grid(row=0, column=1, sticky="nsew")
+        self.main_panel.grid_rowconfigure(0, weight=0)
+        self.main_panel.grid_rowconfigure(1, weight=1)
+        self.main_panel.grid_columnconfigure(0, weight=1)
+        
+        self.general_tabs = TabView(
+            self.main_panel,
+            tabs=["Proxy", "Network", "Device"],
+            height=200
+        )
+        self.general_tabs.grid(row=0, column=0, padx=8, pady=0, sticky="nsew")
+        # Proxy Tab
+        self.proxy_tab_frame = self.general_tabs.tab("Proxy")
+        
+        # Network tab
+        self.network_tab_frame = self.general_tabs.tab("Network")
+        
+        # Device tab
+        self.device_tab_frame = self.general_tabs.tab("Device")
+        
+        # add general tabs
+        self.proxy_tab = ProxyTab(self.proxy_tab_frame)
+        self.proxy_tab.grid(column=0, row=0, sticky="nsew")
+        self.proxy_tab.grid_columnconfigure(0, weight=1)
+        self.proxy_tab.pack_propagate(False)
+        
+        
+        self.tool_tabs = TabView(
+            self.main_panel,
+            tabs=["Interceptor", "Repeater", "Fuzzer", "Decoder/Encoder"]
+        )
+        
+        self.tool_tabs.grid(column=0, row=1, sticky="nsew", padx=8, pady=8)
     
         

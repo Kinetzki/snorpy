@@ -1,19 +1,17 @@
 from mitmproxy.tools.dump import DumpMaster
 from mitmproxy.options import Options
-import asyncio
 from threading import Thread
+from asyncio import AbstractEventLoop
 
 class Dumper:
-    def __init__(self, options: Options, addons=[]):
+    def __init__(self, options: Options, loop: AbstractEventLoop, addons=[]):
         self.dumper = None
-        self.loop = None
+        self.loop = loop
         self.thread: Thread = None
         self.options = options
         self.addons = addons
         
     def _run_proxy(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
         dumper = DumpMaster(
             self.options,
             loop=self.loop,
@@ -34,5 +32,5 @@ class Dumper:
     
     def stop(self):
         if self.dumper:
-            self.loop.call_soon_threadsafe(self.dumper.shutdown())
+            self.loop.call_soon_threadsafe(self.dumper.shutdown)
             
