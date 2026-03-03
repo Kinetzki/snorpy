@@ -6,6 +6,7 @@ from .state_manager import app_state
 from .sidebar import Sidebar
 from .tab_view import TabView
 from .general_tabs.proxy_tab import ProxyTab
+from .tool_tabs.interceptor_tab import InterceptorTab
 
 class MainWindow(CTk):
     def __init__(
@@ -50,14 +51,19 @@ class MainWindow(CTk):
         # add general tabs
         self.proxy_tab = ProxyTab(self.proxy_tab_frame)
         self.proxy_tab.grid(column=0, row=0, sticky="nsew")
-        self.proxy_tab.grid_columnconfigure(0, weight=1)
-        self.proxy_tab.pack_propagate(False)
+        
         
         
         self.tool_tabs = TabView(
             self.main_panel,
             tabs=["Interceptor", "Repeater", "Fuzzer", "Decoder/Encoder"]
         )
+        self.interceptor_tab_frame = self.tool_tabs.tab("Interceptor")
+        
+        self.interceptor_tab = InterceptorTab(self.interceptor_tab_frame)
+        self.interceptor_tab.grid(column=0, row=0, sticky="nsew")
+        
+        self.interceptor_tab.grid_propagate(False)
         
         self.tool_tabs.grid(column=0, row=1, sticky="nsew", padx=8, pady=8)
     

@@ -10,37 +10,50 @@ class ToggleButton(CTkButton):
         
         self.idle_text = idle_text
         self.active_text = active_text
-        self.active_img = Image.open(app_state.get_asset_path(f"assets/{active_img}"))
-        self.idle_img = Image.open(app_state.get_asset_path(f"assets/{idle_img}"))
+        self.active_img = None
+        self.idle_img = None
+        
+        if active_img:
+            self.active_img = Image.open(app_state.get_asset_path(f"assets/{active_img}"))
+        if idle_img:
+            self.idle_img = Image.open(app_state.get_asset_path(f"assets/{idle_img}"))
+        
         self.is_active = False
         self.icon_size = icon_size
         self.toggle_callback = toggle_callback
         
-        default_icon = CTkImage(
-            light_image=self.idle_img,
-            dark_image=self.idle_img,
-            size=self.icon_size
-        )
+        default_icon = None
+        
+        if self.active_img and self.idle_img:
+                default_icon = CTkImage(
+                    light_image=self.idle_img,
+                    dark_image=self.idle_img,
+                    size=self.icon_size
+                )
         super().__init__(master, width, height, corner_radius, text=idle_text, command=self.toggle, image=default_icon,  **kwargs)
         
         # self.toggle()
     
     def toggle(self):
         if not self.is_active:
-            icon = CTkImage(
-                light_image=self.active_img,
-                dark_image=self.active_img,
-                size=self.icon_size
-            )
-            self.configure(image=icon, text=self.active_text)
+            icon = None
+            if self.active_img and self.idle_img:
+                icon = CTkImage(
+                    light_image=self.active_img,
+                    dark_image=self.active_img,
+                    size=self.icon_size
+                )
+            self.after(100, self.configure(image=icon, text=self.active_text))
             self.is_active = True
         else:
-            icon = CTkImage(
-                light_image=self.idle_img,
-                dark_image=self.idle_img,
-                size=self.icon_size
-            )
-            self.configure(image=icon, text=self.idle_text)
+            icon = None
+            if self.active_img and self.idle_img:
+                icon = CTkImage(
+                    light_image=self.idle_img,
+                    dark_image=self.idle_img,
+                    size=self.icon_size
+                )
+            self.after(100, self.configure(image=icon, text=self.idle_text))
             self.is_active = False
         
         if self.toggle_callback:
