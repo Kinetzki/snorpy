@@ -11,7 +11,7 @@ class ProxyTab(CTkFrame):
     def __init__(self, master, width = 200, height = 120, corner_radius = None, **kwargs):
         super().__init__(master, width, height, corner_radius, fg_color="transparent",**kwargs)
         self.grid_columnconfigure(0, weight=1)
-        self.pack_propagate(False)
+        self.pack_propagate(True)
         
         self.listen_host_var = StringVar(self, value=app_state.proxy_listen_host)
         self.listen_port_var = StringVar(self, value=f"{app_state.proxy_listen_port}")

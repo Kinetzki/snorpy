@@ -1,21 +1,14 @@
-# 🛠️ Sidequest Proxy
-### A Scriptable, Python-Native Interception Proxy for Hackers.
+# 🛠️ Snorpy
+### A Python-Native Interception Proxy for Hackers.
 
-**Sidequest** is a lightweight, extensible HTTP/HTTPS interception suite built on **mitmproxy** and **CustomTkinter**. It is designed for developers and security researchers who find Burp Suite’s UI clunky, its Java overhead heavy, and its Pro license prohibitive.
-
-If you can write a Python dictionary, you can forge a request.
-
+**Snorpy** is a lightweight, extensible HTTP/HTTPS interception suite built on **mitmproxy** and **CustomTkinter**. It is designed for developers and security researchers who find Burp Suite’s UI clunky, its Java overhead heavy, and its Pro license prohibitive.
 ---
 
 ## 🏗️ The Engineering Approach
 
-Most proxies are black boxes. **Sidequest** is a "Glass Box." It is a playground for automation, designed to be modified while it's running.
-
 * **Python-Centric:** No XML configs or proprietary DSLs. Everything from the UI components to the network logic is pure, PEP-8 compliant Python.
 * **Decoupled Architecture:** The proxy core runs in an `asyncio` loop on a dedicated background thread, keeping the **CustomTkinter** UI responsive even during heavy traffic or large binary transfers.
 * **Direct Memory Access:** Hook directly into the `mitmproxy` flow object. Modify `flow.request.content` or `flow.request.headers` using standard Python methods without needing a complex SDK.
-
-
 
 ---
 
@@ -41,9 +34,6 @@ The `ttk.Treeview` implementation is optimized for high-volume traffic:
 * **Top-down insertion:** Newest traffic is always at index `0`.
 * **Horizontal scrolling:** Full support for long URLs and nested paths.
 * **Thread-Safe Updates:** UI updates are decoupled from the network thread to prevent deadlocks.
-
-
-
 ---
 
 ## 🛠️ Quick Start (Dev Mode)

@@ -1,7 +1,8 @@
 from src.utils import Dumper, HTTPInterceptor
 from src.core.http_types import HTTPRequest, HTTPResponse, HTTPLog
 from mitmproxy.options import Options
-from mitmproxy.http import HTTPFlow
+from mitmproxy.http import HTTPFlow, Headers
+from mitmproxy.net.http.http1 import assemble_request, assemble_response
 from typing import List, Any, Dict
 import asyncio
 import sys
@@ -101,6 +102,7 @@ class StateManager:
         http_req = flow.request
         request: HTTPRequest = {
             "flow_id": flow.id,
+            "raw_http_string": assemble_request(flow.request),
             "content": http_req.content,
             "headers": http_req.headers,
             "host": http_req.host,
@@ -112,7 +114,7 @@ class StateManager:
         }
         for sub in self.req_subscribers:
             try:
-                sub(request)
+                sub(request, flow)
             except:
                 pass
     
@@ -120,6 +122,7 @@ class StateManager:
         http_res = flow.response
         response: HTTPResponse = {
             "flow_id": flow.id,
+            "raw_http_string": assemble_response(flow.response),
             "content": http_res.content,
             "headers": http_res.headers,
             "length": len(http_res.content),

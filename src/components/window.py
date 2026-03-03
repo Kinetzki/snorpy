@@ -36,7 +36,7 @@ class MainWindow(CTk):
         self.general_tabs = TabView(
             self.main_panel,
             tabs=["Proxy", "Network", "Device"],
-            height=200
+            height=140
         )
         self.general_tabs.grid(row=0, column=0, padx=8, pady=0, sticky="nsew")
         # Proxy Tab

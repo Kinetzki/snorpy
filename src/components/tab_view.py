@@ -3,8 +3,8 @@ from customtkinter import (
 )
 
 class TabView(CTkTabview):
-    def __init__(self, master, tabs=[], height = 250,corner_radius = 0,**kwargs):
-        super().__init__(master, height, corner_radius, anchor="w", **kwargs)
+    def __init__(self, master, tabs=[], height = 250, corner_radius = None, width=300, **kwargs):
+        super().__init__(master, width, height, corner_radius, anchor="w", **kwargs)
 
         self.tabs = tabs
         self.load_tabs()

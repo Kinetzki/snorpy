@@ -5,6 +5,7 @@ class TableColumn(TypedDict):
     anchor: Literal['nw', 'n', 'ne', 'w', 'center', 'e', 'sw', 's', 'se']
     stretch: bool
     width: int
+    min_width: int
 
 class TableRow(TypedDict):
     id: str
