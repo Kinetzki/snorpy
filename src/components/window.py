@@ -6,6 +6,7 @@ from .state_manager import app_state
 from .sidebar import Sidebar
 from .tab_view import TabView
 from .general_tabs.proxy_tab import ProxyTab
+from .general_tabs.network_tab import NetworkTab
 from .tool_tabs.interceptor_tab import InterceptorTab
 
 class MainWindow(CTk):
@@ -52,7 +53,8 @@ class MainWindow(CTk):
         self.proxy_tab = ProxyTab(self.proxy_tab_frame)
         self.proxy_tab.grid(column=0, row=0, sticky="nsew")
         
-        
+        self.network_tab = NetworkTab(self.network_tab_frame)
+        self.network_tab.grid(column=0, row=0, sticky="nsew")
         
         self.tool_tabs = TabView(
             self.main_panel,

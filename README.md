@@ -1,7 +1,7 @@
 # 🛠️ Snorpy
 ### The Python-Native Proxy for people who tired of Burp's "Professional" price tag.
 
-**Snorpy** is a lightweight, modern HTTP/HTTPS interception suite. It’s built for the developer who needs Burp Suite Pro features—like a responsive Repeater and scriptable interception—but doesn't want to deal with Java overhead, clunky 2005-era UI, or a $450/year subscription.
+**Snorpy** is a lightweight, modern HTTP/HTTPS interception suite in Windows. It’s built for the developer who needs Burp Suite Pro features—like a responsive Repeater and scriptable interception—but doesn't want to deal with Java overhead, clunky 2005-era UI, or a $450/year subscription.
 
 Built by humans, for hackers. 🍕
 
