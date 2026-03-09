@@ -167,16 +167,27 @@ class ResponseViewer(CTkFrame):
         self._view_http_headers()
         # add destroying components here
     
-    def _insert_content(self, data: str, target: CTkTextbox):
-        max_chunk = 10000
+    def _insert_content(self, data: str, target: CTkTextbox, content_type: str = ""):
+        max_chunk = 5000
         target.delete("1.0", "end")
-        
-        for i in range(0, len(data), max_chunk):
-            target.insert("end", data[i:i+max_chunk])
+        parsed = data
+
+        if data:
+            if "application/json" in content_type:
+                parsed = json.loads(parsed)
+                parsed = json.dumps(parsed, indent=4)
             
-            if i % (max_chunk * 5) == 0:
-                self.update_idletasks()
-                
+        data_end = len(parsed)
+        
+        def insert(start_index):
+            end_index = start_index + (start_index + max_chunk)
+            
+            target.insert("end", parsed[start_index: end_index])
+            if end_index < data_end:
+                self.after(1, lambda: insert(end_index))
+        
+        insert(0)
+    
     def _view_raw_http(self):
         if self.http_log and self.req_res_tabs:
             # fields in raw
@@ -206,21 +217,24 @@ class ResponseViewer(CTkFrame):
     def _view_raw_content(self):
         if self.http_log and self.req_res_tabs:
             encoding = self.encoding_type.get()
+            request = self.http_log["request"]
             
-            raw_content = self.http_log["request"]["content"].decode(encoding)
+            raw_content = request["content"].decode(encoding)
+            content_type = request["headers"].get("content-type", "")
             
             # Render Request Raw Content
             self.req_raw_content_entry = CTkTextbox(self.req_raw_content_tab)
-            self._insert_content(raw_content, self.req_raw_content_entry)
+            self._insert_content(raw_content, self.req_raw_content_entry, content_type)
             self.req_raw_content_entry._textbox.configure(spacing1=2, spacing3=2)
             self.req_raw_content_entry.grid(column=0, row=0, sticky="nsew", ipadx=20)
             
             if self.http_log.get("response", None):
-                raw_res_content_string = self.http_log["response"]["content"].decode(encoding)
-            
+                response = self.http_log["response"]
+                raw_res_content_string = response["content"].decode(encoding)
+                res_content_type = response["headers"].get("content-type", "")
                 # Render Request Raw
                 self.res_raw_content_entry = CTkTextbox(self.res_raw_content_tab)
-                self._insert_content(raw_res_content_string, self.res_raw_content_entry)
+                self._insert_content(raw_res_content_string, self.res_raw_content_entry, res_content_type)
                 self.res_raw_content_entry._textbox.configure(spacing1=2, spacing3=2)
                 self.res_raw_content_entry.grid(column=0, row=0, sticky="nsew", ipadx=20)
             
