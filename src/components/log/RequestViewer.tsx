@@ -3,6 +3,7 @@ import { type OnChange } from "@monaco-editor/react";
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import CodeEditor from '../editor/Editor';
+import RequestHeader from './RequestHeader';
 
 interface RequestViewerProps {
     request: IRequest,
@@ -40,16 +41,7 @@ const RequestViewer:React.FC<RequestViewerProps> = ({ request, allowEdit=false, 
           <TabsTrigger value="params">Params</TabsTrigger>
         </TabsList>
         <TabsContent value="headers" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col">
-          <section className="flex flex-col w-full h-full min-h-0 overflow-y-auto font-sans gap-2">
-            {Object.entries(request.headers).map(([header, val], i) => {
-              return (
-                <section key={i} className="flex border-b p-1">
-                  <h1 className="w-60 shrink-0 font-semibold">{header}</h1>
-                  <p className="break-all whitespace-pre-wrap flex-1 min-w-0">{val}</p>
-                </section>
-              )
-            })}
-          </section>
+          <RequestHeader headers={request.headers} allowEdit={allowEdit} />
         </TabsContent>
         <TabsContent value="body" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col">
           {(allowEdit && !!onBodyChange) ? (

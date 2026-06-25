@@ -29,5 +29,37 @@ export const useRepeaterStore = create<IRepeaterStore>((set) => ({
         return {
             repeatRequest: newReq
         }
+    }),
+    onRepeatRequestHeaderChange: (header, value) => set((state) => {
+        if (!state.repeatRequest) return {
+            ...state
+        };
+
+        const newReq = {
+            ...state.repeatRequest,
+            headers: {
+                ...state.repeatRequest.headers,
+                [header]: value
+            }
+        }
+
+        return {
+            repeatRequest: newReq
+        }
+    }),
+    onRepeatRequestHeaderRemove: (header) => set((state) => {
+        if (!state.repeatRequest) return {
+            ...state
+        };
+
+        const newHeaders = { ...state.repeatRequest.headers };
+        delete newHeaders[header];
+
+        return {
+            repeatRequest: {
+                ...state.repeatRequest,
+                headers: newHeaders
+            }
+        };
     })
 }))

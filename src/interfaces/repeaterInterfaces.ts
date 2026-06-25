@@ -13,4 +13,6 @@ export interface IRepeaterStore {
     setIsSendingRequest: (isSending: boolean) => void;
     onRepeatResponse: (res: IResponse | null) => void;
     onRepeatRequestBodyChange: (body: string) => void;
+    onRepeatRequestHeaderChange: (header: string, value: string) => void;
+    onRepeatRequestHeaderRemove: (header: string) => void;
 }
