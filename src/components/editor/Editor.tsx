@@ -116,6 +116,7 @@ const CodeEditor: React.FC<EditorProps> = ({
             wordWrapBreakBeforeCharacters: "{([+",
             wordWrapColumn: 80,
             wrappingIndent: "indent",
+            minimap: { enabled: false }
           }}
           loading={<EditorLoader />}
         />

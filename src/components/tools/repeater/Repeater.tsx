@@ -5,11 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { defaultStyle, getStatusStyle, methodStyles } from '@/lib/utils';
 import { useRepeaterStore } from '@/stores/RepeaterStore';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Repeater = () => {
-    const { repeatRequest, repeatResponse, onRepeatRequestBodyChange, isSendingRequest, setIsSendingRequest } = useRepeaterStore();
+    const { repeatRequest, repeatResponse, onRepeatRequestBodyChange, isSendingRequest, setIsSendingRequest, onSetRepeatRequest } = useRepeaterStore();
 
     const onSendRequest = () => {
         if (!repeatRequest) return;
@@ -23,14 +23,22 @@ const Repeater = () => {
         onRepeatRequestBodyChange(body)
     }
 
+    const onClearRepeatRequest = () => {
+        onSetRepeatRequest(null)
+    }
+
   return (
     <div className="w-full h-full grid grid-rows-[50px_50px_auto]">
         <section className="bg-card/70 flex items-center px-6 border-b">
             <h1 className="font-semibold text-zinc-200">Repeater</h1>
         </section>
 
-        <section className="bg-secondary/50 flex items-center px-6 justify-end border-b">
+        <section className="bg-secondary/50 flex items-center px-6 justify-end border-b gap-2">
             <Button className="min-w-30" disabled={!!!repeatRequest} onClick={onSendRequest}>Send</Button>
+            <Button className="min-w-30 text-red-500 hover:text-red-600" variant="destructive" onClick={onClearRepeatRequest}>
+                <Trash2 className="w-4 h-4" />
+                Clear Request
+            </Button>
         </section>
 
         {/* <NetworkLogViewer log={}/> */}
