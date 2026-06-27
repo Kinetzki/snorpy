@@ -5,6 +5,7 @@ export interface ISnorpyApi {
   start: () => Promise<{ success: boolean; url: string; cert: string }>;
   stop: () => Promise<{ success: boolean; url: string }>;
   resume: (id: string) => Promise<void>;
+  dropRequest: (id: string) => Promise<void>;
   setPort: (port: number) => void;
   setTarget: (domain: string) => void;
   setIntercept: (isIntercept: boolean) => void;

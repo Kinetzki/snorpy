@@ -29,7 +29,7 @@ export const useProxyStore = create<IProxyStore>((set) => ({
     onClearInterceptedRequest: (reqIds) => set((state) => {
         const currReqs = [...state.interceptedRequests];
         const filteredReqs = currReqs.filter(el => !reqIds.includes(el.id));
-
+        console.log("Cleared requests", filteredReqs, currReqs, reqIds)
         return {
             interceptedRequests: [...filteredReqs]
         }

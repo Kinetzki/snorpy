@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld("snorpy", {
   start: () => ipcRenderer.invoke("proxy:start"),
   stop: () => ipcRenderer.invoke("proxy:stop"),
   resume: (id: string) => ipcRenderer.invoke("proxy:resume-request", id),
+  dropRequest: (id: string) => ipcRenderer.invoke("proxy:drop-request", id),
   setPort: (port: number) => ipcRenderer.invoke("proxy:set-port", port),
   setIntercept: (isIntercept: boolean) => ipcRenderer.invoke("proxy:set-intercept", isIntercept),
   setTarget: (domain: string) => ipcRenderer.invoke("proxy:set-target", domain),

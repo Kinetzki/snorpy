@@ -24,6 +24,7 @@ electron.contextBridge.exposeInMainWorld("snorpy", {
   start: () => electron.ipcRenderer.invoke("proxy:start"),
   stop: () => electron.ipcRenderer.invoke("proxy:stop"),
   resume: (id) => electron.ipcRenderer.invoke("proxy:resume-request", id),
+  dropRequest: (id) => electron.ipcRenderer.invoke("proxy:drop-request", id),
   setPort: (port) => electron.ipcRenderer.invoke("proxy:set-port", port),
   setIntercept: (isIntercept) => electron.ipcRenderer.invoke("proxy:set-intercept", isIntercept),
   setTarget: (domain) => electron.ipcRenderer.invoke("proxy:set-target", domain),

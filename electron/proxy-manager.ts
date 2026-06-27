@@ -167,10 +167,7 @@ export class ProxyManager {
                         if (action === "drop") {
                             console.log("Request dropped");
                             return {
-                                response: {
-                                    statusCode: 502,
-                                    body: "Request dropped by snorpy"
-                                }
+                                response: "close" as const
                             }
                         }
 
@@ -213,6 +210,21 @@ export class ProxyManager {
                 resolver("resume");
                 this.pendingRequests.delete(requestId);
                 this.webContents.send("proxy:requests-cleared", [requestId]);
+            }
+        })
+
+        // handler to drop request
+        ipcMain.handle("proxy:drop-request", async (_event, requestId: string) => {
+            const pendingRequest = this.pendingRequests.get(requestId);
+            if (pendingRequest) {
+                const { resolver } = pendingRequest;
+                resolver("drop");
+                this.pendingRequests.delete(requestId);
+            }
+            this.webContents.send("proxy:requests-cleared", [requestId]);
+            return {
+                success: true,
+                message: "Request dropped"
             }
         })
 

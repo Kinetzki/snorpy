@@ -5,6 +5,7 @@ import { useProxyStore } from "@/stores/proxyStore";
 import { Badge } from "../ui/badge";
 import { SkipForward, Trash } from "lucide-react";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 const Interceptor = () => {
     const { isIntercepting, setIsIntercept, interceptedRequests } = useProxyStore();
@@ -16,6 +17,14 @@ const Interceptor = () => {
 
     const onForwardrequest = (requestId: string) => {
         window.snorpy.resume(requestId);
+    }
+
+    const onDropRequest = (requestId: string) => {
+        window.snorpy.dropRequest(requestId).then(() => {
+            toast.success("Request dropped");
+        }).catch(() => {
+            toast.error("Failed to drop request");
+        });
     }
 
     return (
@@ -45,7 +54,7 @@ const Interceptor = () => {
 
                 <div className="flex-1 min-h-0 max-w-[90vw] h-full w-full flex flex-col border-t overflow-auto">
                     <section className="flex flex-col">
-                        {interceptedRequests.map(request => {
+                        {interceptedRequests.map((request) => {
                             const customBadgeClass = methodStyles[request.method] || defaultStyle;
 
                             return (
@@ -60,6 +69,7 @@ const Interceptor = () => {
                                         const currAttribute = e.currentTarget.getAttribute('data-hovering')
                                         e.currentTarget.setAttribute("data-hovering", currAttribute  === 'true' ? 'false' : 'true')
                                     }}
+                                    key={request.id}
                                 >
                                     <div className="w-24 shrink-0 flex items-center">
                                         <Badge
@@ -88,8 +98,10 @@ const Interceptor = () => {
                                             }}>
                                                 <SkipForward />
                                             </Button>
-                                            <Button variant={"ghost"}>
-                                                <Trash />
+                                            <Button variant={"ghost"} onClick={() => {
+                                                onDropRequest(request.id);
+                                            }}>
+                                                <Trash className="text-red-500" />
                                             </Button>
                                         </section>
                                     </div>
