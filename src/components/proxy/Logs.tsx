@@ -8,8 +8,6 @@ import { Button } from "../ui/button";
 
 const defaultStyle = "bg-zinc-500/10 text-zinc-400 border-zinc-500/30";
 
-
-
 const Logs = () => {
     const { networkLogs, setSelectedNetworkLog, onClearNetworkLogs } = useAppStore();
 

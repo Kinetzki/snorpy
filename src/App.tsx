@@ -10,11 +10,14 @@ import Tools from "./components/tools/Tools";
 import { useRepeaterStore } from "./stores/RepeaterStore";
 import { IRepeaterResponse } from "./interfaces/repeaterInterfaces";
 import { toast } from "sonner";
+import { IIntruderResponse } from "./interfaces/intruderInterfaces";
+import useIntruderStore from "./stores/IntruderStore";
 
 const App = () => {
     const { onNewRequest, onNewResponse } = useAppStore();
     const { onNewInterceptedRequest, onClearInterceptedRequest } = useProxyStore();
     const { onRepeatResponse } = useRepeaterStore();
+    const { onAddIntruderResponse } = useIntruderStore();
 
     const handlePassthroughRequest = (log: IRequest) => {
         onNewRequest(log);
@@ -41,12 +44,21 @@ const App = () => {
         onRepeatResponse(res.data)
     }
 
+    const handleIntruderResponse = (res: IIntruderResponse) => {
+        console.log("Intruder Response", res)
+        if (res.error) {
+            toast.error(`Request failed: ${String(res.error)}`)
+        }
+        onAddIntruderResponse(res)
+    }
+
     useEffect(() => {
         window.snorpy.onRequestPassthrough(handlePassthroughRequest);
         window.snorpy.onResponseIntercepted(handleResponse);
         window.snorpy.onRequestIntercepted(handleInterceptedRequest);
         window.snorpy.onClearPendingRequests(handleClearPendingRequests);
         window.snorpy.onRepeatResponse(handleRepeatResponse)
+        window.snorpy.onIntruderResponse(handleIntruderResponse)
     }, []);
 
     return (

@@ -10,10 +10,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { EllipsisVertical } from 'lucide-react';
 import { useRepeaterStore } from '@/stores/RepeaterStore';
 import { toast } from 'sonner';
+import useIntruderStore from '@/stores/IntruderStore';
 
 const SelectedLogDialog:React.FC = () => {
     const { selectedNetworkLog, setSelectedNetworkLog } = useAppStore();
     const { onSetRepeatRequest } = useRepeaterStore();
+    const { onSetIntruderRequest } = useIntruderStore();
     const [ logRequest, setLogRequest ] = useState<IRequest | null>(null);
     const [ logResponse, setLogResponse ] = useState<IResponse | null>(null);
 
@@ -25,6 +27,12 @@ const SelectedLogDialog:React.FC = () => {
         if (!selectedNetworkLog) return;
         onSetRepeatRequest(selectedNetworkLog.request)
         toast.success("Request sent to repeater")
+    }
+
+    const onSendToIntruder = () => {
+        if (!selectedNetworkLog) return;
+        onSetIntruderRequest(selectedNetworkLog.request)
+        toast.success("Request sent to intruder")
     }
 
     useEffect(() => {
@@ -80,7 +88,10 @@ const SelectedLogDialog:React.FC = () => {
                                     className="px-2 py-2 cursor-pointer text-zinc-300"
                                     onClick={onSendToRepeater}
                                 >Send to repeater</DropdownMenuItem>
-                                <DropdownMenuItem className="px-2 py-2 cursor-pointer text-zinc-300">Send to intruder</DropdownMenuItem>
+                                <DropdownMenuItem 
+                                    className="px-2 py-2 cursor-pointer text-zinc-300"
+                                    onClick={onSendToIntruder}
+                                >Send to intruder</DropdownMenuItem>
                                 <DropdownMenuItem className="px-2 py-2 cursor-pointer text-zinc-300">Send to decoder</DropdownMenuItem>
                                 <DropdownMenuItem className="px-2 py-2 cursor-pointer text-zinc-300">Send to buster</DropdownMenuItem>
                                 <DropdownMenuItem className="px-2 py-2 cursor-pointer text-zinc-300">Send to analyzer</DropdownMenuItem>

@@ -2,7 +2,7 @@ import { ipcMain, WebContents } from "electron";
 import axios, { AxiosResponse } from "axios";
 import { IRequest } from "@/interfaces/logInterfaces";
 import { Parser } from "./parser";
-import { IIntruderResponse } from "@/interfaces/intruderInterfaces";
+import { IIntruderRequest, IIntruderResponse } from "@/interfaces/intruderInterfaces";
 
 export class Intruder {
     private webContents: WebContents;
@@ -58,29 +58,28 @@ export class Intruder {
         }
 
         // replace url params
-        const urlParams = new URLSearchParams(url);
-        for (const [key, value] of urlParams.entries()) {
-            const substitutedValue = value.replaceAll(sectionRegex, payload);
-            urlParams.set(key, substitutedValue);
-        }
+        const replacedUrl = url.replaceAll(sectionRegex, payload);
 
         return {
             ...request,
             headers: substitutedHeaders,
             body: substitutedBody,
-            url: urlParams.toString()
+            url: replacedUrl
         }
     }
 
-    private createRequestBatch(request: IRequest, payloads: string[]): IRequest[][] {
-        const requestBatches: IRequest[][] = [];
+    private createRequestBatch(request: IRequest, payloads: string[], concurrency: number): IIntruderRequest[][] {
+        const requestBatches: IIntruderRequest[][] = [];
 
-        const requestBatch: IRequest[] = [];
+        const requestBatch: IIntruderRequest[] = [];
         for (const payload of payloads) {
             const substitutedRequest = this.replacePlaceholders(payload, request);
-            requestBatch.push(substitutedRequest);
+            requestBatch.push({
+                request: substitutedRequest,
+                payload: payload
+            });
 
-            if (requestBatch.length === this.maxConcurrentRequests) {
+            if (requestBatch.length === concurrency) {
                 requestBatches.push([...requestBatch]);
                 requestBatch.splice(0, requestBatch.length);
             }
@@ -93,58 +92,102 @@ export class Intruder {
         return requestBatches;
     }
 
-    private parseResponse(id: string, response: AxiosResponse): IIntruderResponse | null {
+    private parseResponse(request: IIntruderRequest, response: AxiosResponse): IIntruderResponse | null {
         let intruderResponse: IIntruderResponse | null = null;
-
+        const { request: { id }, payload } = request;
         try {
             const responseBodyBuffer = Buffer.from(response.data);
             const parsedBody = Parser.parseResponseBufferAsText(responseBodyBuffer, (response.headers["content-type"]??"").toString().toLowerCase())
 
             return {
                 error: null,
-                data: {
+                response: {
                     id: id,  
                     statusCode: response.status,
                     body: parsedBody,
                     headers: response.headers
-                }   
+                },
+                request: request.request,
+                payload: payload
             }
         } catch (e) {
             intruderResponse = {
                 error: e,
-                data: null
+                response: null,
+                request: request.request,
+                payload: payload
             }
         }
 
         return intruderResponse;
     }
 
-    private async sendRequest(request: IRequest): Promise<{
-        id: string,
-        response: AxiosResponse
+    private async sendRequest(request: IIntruderRequest): Promise<{
+        request: IIntruderRequest,
+        response: AxiosResponse | null,
+        payload: string,
+        error: any | null
     }> {
-        const response = await this.sender({
-            ...request,
-            signal: this.activeRequestController?.signal
-        });
+        const { request: { method, url, headers, body }, payload } = request;
 
-        return {
-            id: request.id,
-            response: response
+        try {
+            const response = await this.sender({
+                method: method,
+                url: url,
+                headers,
+                data: body,
+                transformRequest: [],
+                validateStatus: () => true,
+                responseType: 'arraybuffer',
+                signal: this.activeRequestController?.signal
+            });
+    
+            return {
+                request: request,
+                response: response,
+                payload: payload,
+                error: null
+            }
+        } catch (error) {
+            return {
+                request: request,
+                response: null,
+                payload: payload,
+                error: error
+            }
         }
+        
     }
 
-    private async sendRequestBatch(requestBatches: IRequest[][]) {
+    private async sendRequestBatch(requestBatches: IIntruderRequest[][]) {
         // create axios promise with signal for each request
         for (const requestBatch of requestBatches) {
             if (this.isStopIntruder) break;
             const promises = requestBatch.map(request => this.sendRequest(request));
 
-            const responses = await Promise.all(promises);
-            for (const res of responses) {
-                const { id, response } = res;
-                const intruderResponse = this.parseResponse(id, response);
-                this.webContents.send("intruder:response", intruderResponse);
+            const responses = await Promise.allSettled(promises);
+
+            for (const result of responses) {
+                if (result.status === 'fulfilled') {
+                    const { request, response, error, payload } = result.value;
+                    if (error) {
+                        this.webContents.send("intruder:response", {
+                            error: error,
+                            response: null,
+                            request: request.request,
+                            payload: payload
+                        });
+                    } else if (response) {
+                        this.webContents.send("intruder:response", this.parseResponse(request, response));
+                    } else {
+                        this.webContents.send("intruder:response", {
+                            error: "No response received",
+                            response: null,
+                            request: request.request,
+                            payload: payload
+                        });
+                    }
+                }
             }
         }
     }
@@ -163,11 +206,24 @@ export class Intruder {
                     message: "Max concurrent requests reached"
                 }
             }
+
+            if (this.activeRequestController && !this.activeRequestController.signal.aborted) {
+                return {
+                    success: false,
+                    message: "Intruder already running"
+                }
+            }
+
+            this.isStopIntruder = false;
             const newAbortController = new AbortController();
             this.activeRequestController = newAbortController;
             try {   
-                const requestBatches = this.createRequestBatch(request, payloads);
-                await this.sendRequestBatch(requestBatches);
+                const requestBatches = this.createRequestBatch(request, payloads, concurrency);
+                this.sendRequestBatch(requestBatches).catch((e) => {
+                    console.error("Batch Error", e)
+                }).finally(() => {
+                    this.activeRequestController = null;
+                })
             } catch (e) {
                 return {
                     success: false,
@@ -194,6 +250,6 @@ export class Intruder {
         if (this.activeRequestController) {
             this.activeRequestController.abort();
         }
-        this.isStopIntruder = false;
+        this.activeRequestController = null;
     }
 }
