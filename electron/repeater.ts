@@ -40,40 +40,13 @@ export class Repeater {
         delete updatedHeaders['accept-encoding']; 
         delete updatedHeaders['Accept-Encoding'];
 
-        let serializedData: string | Buffer = "";
+        let serializedData: string | Buffer<any> = "";
         const bodyType = Parser.getRequestType(headers);
 
         if (body && body !== "Error parsing body content") {
             try {
-                if (bodyType === 'json') {
-                    // Step back from standard stringified JSON layout to compressed layout
-                    const parsed = JSON.parse(body);
-                    serializedData = JSON.stringify(parsed);
-                } 
-                else if (bodyType === 'form') {
-                    // Step back from the pretty-printed JSON parameter object string
-                    const jsonObject = JSON.parse(body);
-                    const urlParams = new URLSearchParams();
-
-                    for (const [key, value] of Object.entries(jsonObject)) {
-                        if (typeof value === 'object' && value !== null) {
-                            // Recovers any hybrid nested stringified-JSON payloads
-                            urlParams.append(key, JSON.stringify(value));
-                        } else {
-                            urlParams.append(key, String(value));
-                        }
-                    }
-                    serializedData = urlParams.toString(); // Outputs: "key1=val1&key2=val2"
-                } else if (bodyType === 'multipart' || bodyType === 'raw') {
-                    serializedData = Buffer.from(body, 'base64');
-                }
-                else {
-                    // For text or unhandled/raw variants, pipe the raw string directly
-                    serializedData = body;
-                }
+                serializedData = Parser.serializeBody(body, bodyType);
             } catch (e) {
-                // Fallback fallback: If structural serialization fails (invalid JSON edits),
-                // forward the user's raw input directly so the server can handle validation errors.
                 serializedData = body;
             }
         }

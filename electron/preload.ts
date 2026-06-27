@@ -48,5 +48,10 @@ contextBridge.exposeInMainWorld("snorpy", {
   repeatRequest: (req: IRequest) => ipcRenderer.invoke("repeater:send-request", req),
   onRepeatResponse: (callback: any) => {
     ipcRenderer.on("repeater:response", (_event, data) => callback(data))
+  },
+  startIntruder: (req: IRequest, payloads: string[], concurrency: number) => ipcRenderer.invoke("intruder:start", { request: req, payloads: payloads, concurrency: concurrency }),
+  stopIntruder: () => ipcRenderer.invoke("intruder:stop"),
+  onIntruderResponse: (callback: any) => {
+    ipcRenderer.on("intruder:response", (_event, data) => callback(data))
   }
 })

@@ -58,4 +58,37 @@ export class Parser {
 
         return formattedBody;
     }
+
+    static serializeBody(body: string, contentType: string): string | Buffer<any> {
+        let serializedData: string | Buffer<any>;
+
+        if (contentType === 'json') {
+            // Step back from standard stringified JSON layout to compressed layout
+            const parsed = JSON.parse(body);
+            serializedData = JSON.stringify(parsed);
+        } 
+        else if (contentType === 'form') {
+            // Step back from the pretty-printed JSON parameter object string
+            const jsonObject = JSON.parse(body);
+            const urlParams = new URLSearchParams();
+
+            for (const [key, value] of Object.entries(jsonObject)) {
+                if (typeof value === 'object' && value !== null) {
+                    // Recovers any hybrid nested stringified-JSON payloads
+                    urlParams.append(key, JSON.stringify(value));
+                } else {
+                    urlParams.append(key, String(value));
+                }
+            }
+            serializedData = urlParams.toString(); // Outputs: "key1=val1&key2=val2"
+        } else if (contentType === 'multipart' || contentType === 'raw') {
+            serializedData = Buffer.from(body, 'base64');
+        }
+        else {
+            // For text or unhandled/raw variants, pipe the raw string directly
+            serializedData = body;
+        }
+
+        return serializedData;
+    }
 }

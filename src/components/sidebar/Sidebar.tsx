@@ -52,7 +52,7 @@ const sidebarItems: SidebarItem[] = [
             },
             {
                 title: "Intruder",
-                url: "#",
+                url: "/tools/intruder",
             },
             {
                 title: "Spider",

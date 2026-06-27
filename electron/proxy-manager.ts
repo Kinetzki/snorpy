@@ -25,13 +25,17 @@ export class ProxyManager {
         const clearedIds:string[] = [];
         this.pendingRequests.forEach((pendingReq) => {
             const { requestId, resolver, data } = pendingReq;
-            this.webContents.send("proxy:request-passthrough", data);
+            if (!this.webContents.isDestroyed()) {
+                this.webContents.send("proxy:request-passthrough", data);
+            }
             resolver(action); 
             clearedIds.push(requestId)
         });
 
         this.pendingRequests.clear();
-        this.webContents.send("proxy:requests-cleared", clearedIds);
+        if (!this.webContents.isDestroyed()) {
+            this.webContents.send("proxy:requests-cleared", clearedIds);
+        }
 
         console.log("All pending requests have been cleared.");
     }

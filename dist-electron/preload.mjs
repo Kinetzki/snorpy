@@ -43,5 +43,10 @@ electron.contextBridge.exposeInMainWorld("snorpy", {
   repeatRequest: (req) => electron.ipcRenderer.invoke("repeater:send-request", req),
   onRepeatResponse: (callback) => {
     electron.ipcRenderer.on("repeater:response", (_event, data) => callback(data));
+  },
+  startIntruder: (req, payloads, concurrency) => electron.ipcRenderer.invoke("intruder:start", { request: req, payloads, concurrency }),
+  stopIntruder: () => electron.ipcRenderer.invoke("intruder:stop"),
+  onIntruderResponse: (callback) => {
+    electron.ipcRenderer.on("intruder:response", (_event, data) => callback(data));
   }
 });

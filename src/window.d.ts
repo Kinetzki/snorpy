@@ -1,5 +1,6 @@
 import { IRequest, IResponse } from "./interfaces/logInterfaces";
 import { IRepeaterResponse } from "./interfaces/repeaterInterfaces";
+import { IIntruderResponse } from "./interfaces/intruderInterfaces";
 
 export interface ISnorpyApi {
   start: () => Promise<{ success: boolean; url: string; cert: string }>;
@@ -15,6 +16,9 @@ export interface ISnorpyApi {
   onClearPendingRequests: (callback: (data: string[]) => void) => void;
   repeatRequest: (req: IRequest) => void;
   onRepeatResponse: (callback: (data: IRepeaterResponse) => void) => void;
+  startIntruder: (req: IRequest, payloads: string[], concurrency: number) => void;
+  stopIntruder: () => void;
+  onIntruderResponse: (callback: (data: IIntruderResponse) => void) => void;
 }
 
 declare global {
