@@ -1,17 +1,18 @@
-import { useRepeaterStore } from '@/stores/RepeaterStore';
 import React from 'react'
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { PlusIcon, XIcon } from 'lucide-react';
-import { Textarea } from '../ui/textarea';
+import HeaderValueHighlight from './HeaderValueHighlight';
 
 interface RequestHeaderProps {
     headers: Record<string, any>
     allowEdit?: boolean
+    onHeaderValueChange?: (header: string, value: string) => void
+    onHeaderRemove?: (header: string) => void
+    isHighlightPayloadPositions?: boolean
 }
 
-const RequestHeader: React.FC<RequestHeaderProps> = ({ headers, allowEdit=false }) => {
-    const { onRepeatRequestHeaderChange, onRepeatRequestHeaderRemove } = useRepeaterStore();
+const RequestHeader: React.FC<RequestHeaderProps> = ({ headers, allowEdit=false, onHeaderValueChange, onHeaderRemove, isHighlightPayloadPositions=false }) => {
 
     return (
         <section className="flex flex-col w-full h-full min-h-0 overflow-y-auto font-sans gap-2">
@@ -25,18 +26,17 @@ const RequestHeader: React.FC<RequestHeaderProps> = ({ headers, allowEdit=false 
                                     placeholder="Header Name"
                                     className="w-60 shrink-0 bg-card/50 border rounded-md"
                                     value={header} 
-                                    onChange={(e) => onRepeatRequestHeaderChange(e.target.value, val)} 
+                                    onChange={(e) => onHeaderValueChange?.(header, e.target.value)} 
                                 />
-                                <Textarea
-                                    className="flex-1 min-w-0 bg-card/50 border rounded-md"
-                                    placeholder="Header Value"
-                                    value={val}
-                                    onChange={(e) => onRepeatRequestHeaderChange(header, e.target.value)}
+                                <HeaderValueHighlight 
+                                    value={val} 
+                                    onChange={(value) => onHeaderValueChange?.(header, value)} 
+                                    isHighlightPayloadPositions={isHighlightPayloadPositions}
                                 />
                                 <Button 
                                     variant="outline" 
                                     size="icon" 
-                                    onClick={() => onRepeatRequestHeaderRemove(header)}
+                                    onClick={() => onHeaderRemove?.(header)}
                                 >
                                     <XIcon className="w-4 h-4" />
                                 </Button>
@@ -57,7 +57,7 @@ const RequestHeader: React.FC<RequestHeaderProps> = ({ headers, allowEdit=false 
                 </>
             )}
             {allowEdit && (
-                <Button variant="outline" size="icon" onClick={() => onRepeatRequestHeaderChange("", "")}>
+                <Button variant="outline" size="icon" onClick={() => onHeaderValueChange?.("", "")}>
                     <PlusIcon className="w-4 h-4" />
                 </Button>
             )}

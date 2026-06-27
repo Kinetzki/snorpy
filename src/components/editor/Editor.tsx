@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Editor, type Monaco, type OnChange } from "@monaco-editor/react";
 import OceanicTheme from "./editor-theme";
 import * as monaco from "monaco-editor";
@@ -13,6 +13,7 @@ interface EditorProps {
   language: string
 //   onLanguageChange: (lang: Language) => void
   readOnly?: boolean
+  isHighlightPayloadPositions?: boolean
 }
 
 const CodeEditor: React.FC<EditorProps> = ({
@@ -21,30 +22,65 @@ const CodeEditor: React.FC<EditorProps> = ({
     code,
     language,
     onChange,
-    readOnly=false
+    readOnly=false,
+    isHighlightPayloadPositions=false
 }) => {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const decorationIds = useRef<string[]>([]);
 
     const handleEditorMount = (monaco: Monaco) => {
-    monaco.editor.defineTheme("oceanic-next", {
-      base: "vs-dark",
-      inherit: true,
-      ...OceanicTheme,
-    });
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      tsx: "react",
-    });
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
-      noSyntaxValidation: true,
-    });
-  };
+      monaco.editor.defineTheme("oceanic-next", {
+        base: "vs-dark",
+        inherit: true,
+        ...OceanicTheme,
+      });
+      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+        tsx: "react",
+      });
+      monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+        noSemanticValidation: true,
+        noSyntaxValidation: true,
+      });
+    };
+
+    const highlightPayloadPositions = (editor: monaco.editor.IStandaloneCodeEditor) => {
+      if (!editor) return;
+
+      const model = editor.getModel();
+      if (!model) return;
+      if (!isHighlightPayloadPositions) return;
+
+      const decorations: monaco.editor.IModelDeltaDecoration[] = [];
+      const regex = /§[^§]+§/g;
+      let match: RegExpExecArray | null;
+
+      while ((match = regex.exec(model.getValue())) !== null) {
+        const start = model.getPositionAt(match.index);
+        const end = model.getPositionAt(match.index + match[0].length);
+        decorations.push({
+          range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+          options: {
+            inlineClassName: 'payload-position-highlight'
+          }
+        })
+      }
+
+      decorationIds.current = editor.deltaDecorations(decorationIds.current, decorations);
+    }
   
-  const onMount = (
-    editor: monaco.editor.IStandaloneCodeEditor,
-    _: Monaco) => {
+    const onMount = (
+      editor: monaco.editor.IStandaloneCodeEditor,
+      _: Monaco) => {
       editorRef.current = editor;
-  }
+
+      highlightPayloadPositions(editor);
+    }
+
+    useEffect(() => {
+      if (editorRef.current) {
+        highlightPayloadPositions(editorRef.current);
+      }
+    }, [code])
 
   return (
     <div className="min-h-0" style={{

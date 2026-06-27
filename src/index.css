@@ -110,3 +110,9 @@
     @apply w-screen h-screen;
   }
 }
+
+.payload-position-highlight {
+  background-color: rgba(168, 85, 247, 0.35); /* purple tint */
+  border-radius: 2px;
+  outline: 1px solid rgba(168, 85, 247, 0.5);
+}

@@ -9,7 +9,7 @@ import { LoaderCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Repeater = () => {
-    const { repeatRequest, repeatResponse, onRepeatRequestBodyChange, isSendingRequest, setIsSendingRequest, onSetRepeatRequest } = useRepeaterStore();
+    const { repeatRequest, repeatResponse, onRepeatRequestBodyChange, isSendingRequest, setIsSendingRequest, onSetRepeatRequest, onRepeatRequestHeaderChange, onRepeatRequestHeaderRemove } = useRepeaterStore();
 
     const onSendRequest = () => {
         if (!repeatRequest) return;
@@ -21,6 +21,16 @@ const Repeater = () => {
     const onBodyChange = (body: string | undefined) => {
         if (!body) return;
         onRepeatRequestBodyChange(body)
+    }
+
+    const onHeaderValueChange = (header: string, value: string) => {
+        if (!header || !value) return;
+        onRepeatRequestHeaderChange(header, value)
+    }
+
+    const onHeaderRemove = (header: string) => {
+        if (!header) return;
+        onRepeatRequestHeaderRemove(header)
     }
 
     const onClearRepeatRequest = () => {
@@ -60,7 +70,13 @@ const Repeater = () => {
                 
                 {repeatRequest ? (
                     <section className="w-full h-full px-6 py-1 min-h-0">
-                        <RequestViewer request={repeatRequest} allowEdit onBodyChange={onBodyChange}/>
+                        <RequestViewer 
+                            request={repeatRequest} 
+                            allowEdit 
+                            onBodyChange={onBodyChange} 
+                            onHeaderValueChange={onHeaderValueChange} 
+                            onHeaderRemove={onHeaderRemove}
+                        />
                     </section>
                 ) : (
                     <section className="flex w-full h-full items-center justify-center font-semibold text-zinc-200">

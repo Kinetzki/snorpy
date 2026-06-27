@@ -5,6 +5,7 @@ import path from 'node:path'
 import { ProxyManager } from "./proxy-manager";
 import { CertManager } from './cert-manager';
 import { Repeater } from './repeater';
+import { Intruder } from './intruder';
 
 const require = createRequire(import.meta.url);
 const currentDirName = path.dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 let win: BrowserWindow | null
 let proxyManager: ProxyManager | null;
 let repeater: Repeater | null;
+let intruder: Intruder | null;
 
 async function createWindow() {
   win = new BrowserWindow({
@@ -72,6 +74,12 @@ async function createWindow() {
     repeater = new Repeater(win.webContents);
   } else {
     repeater.setWebContents(win.webContents);
+  }
+
+  if (!intruder) {
+    intruder = new Intruder(win.webContents);
+  } else {
+    intruder.setWebContents(win.webContents);
   }
 }
 

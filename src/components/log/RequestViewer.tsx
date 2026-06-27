@@ -8,10 +8,13 @@ import RequestHeader from './RequestHeader';
 interface RequestViewerProps {
     request: IRequest,
     allowEdit?: boolean,
-    onBodyChange?: OnChange;
+    onBodyChange?: OnChange,
+    onHeaderValueChange?: (header: string, value: string) => void;
+    onHeaderRemove?: (header: string) => void;
+    isHighlightPayloadPositions?: boolean;
 }
 
-const RequestViewer:React.FC<RequestViewerProps> = ({ request, allowEdit=false, onBodyChange }) => {
+const RequestViewer:React.FC<RequestViewerProps> = ({ request, allowEdit=false, onBodyChange, onHeaderValueChange, onHeaderRemove, isHighlightPayloadPositions=false }) => {
 
   const getMonacoLanguage = (contentTypeHeader: string | undefined) => {
     const contentType = (contentTypeHeader || '').toLowerCase();
@@ -41,7 +44,7 @@ const RequestViewer:React.FC<RequestViewerProps> = ({ request, allowEdit=false, 
           <TabsTrigger value="params">Params</TabsTrigger>
         </TabsList>
         <TabsContent value="headers" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col">
-          <RequestHeader headers={request.headers} allowEdit={allowEdit} />
+          <RequestHeader headers={request.headers} allowEdit={allowEdit} onHeaderValueChange={onHeaderValueChange} onHeaderRemove={onHeaderRemove} isHighlightPayloadPositions={isHighlightPayloadPositions} />
         </TabsContent>
         <TabsContent value="body" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col">
           {(allowEdit && !!onBodyChange) ? (
@@ -52,6 +55,7 @@ const RequestViewer:React.FC<RequestViewerProps> = ({ request, allowEdit=false, 
               code={request.body} 
               readOnly={!allowEdit} 
               onChange={onBodyChange}
+              isHighlightPayloadPositions={isHighlightPayloadPositions}
             />
           ): (
             <>
