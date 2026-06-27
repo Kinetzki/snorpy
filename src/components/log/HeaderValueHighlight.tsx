@@ -22,7 +22,7 @@ const HeaderValueHighlight: React.FC<HeaderValueHighlightProps> = ({ value, onCh
     return (
         <div className="relative flex-1 min-w-0">
             {/* highlight backdrop — mirrors textarea exactly */}
-            <div
+            {isHighlightPayloadPositions ? <div
                 ref={highlightRef}
                 aria-hidden
                 className="absolute inset-0 pointer-events-none overflow-hidden whitespace-pre-wrap break-all rounded-md border border-transparent"
@@ -35,7 +35,7 @@ const HeaderValueHighlight: React.FC<HeaderValueHighlightProps> = ({ value, onCh
                     wordSpacing: 'inherit',
                 }}
             >
-                {isHighlightPayloadPositions ? String(value).split(HIGHLIGHT_SPLIT).map((part, j) =>
+                {String(value).split(HIGHLIGHT_SPLIT).map((part, j) =>
                     part.startsWith('§') ? (
                         <mark key={j} className="payload-position-highlight text-transparent rounded-sm">
                             {part}
@@ -43,8 +43,8 @@ const HeaderValueHighlight: React.FC<HeaderValueHighlightProps> = ({ value, onCh
                     ) : (
                         <span key={j} className="text-transparent">{part}</span>
                     )
-                ) : String(value)}
-            </div>
+                )}
+            </div> : null}
             {/* transparent textarea on top */}
             <textarea
                 ref={textareaRef}
