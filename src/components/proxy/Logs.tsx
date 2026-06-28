@@ -4,9 +4,62 @@ import { useAppStore } from "@/stores/AppStore";
 import { NetworkLog } from "@/interfaces/logInterfaces";
 import SelectedLogDialog from "./SelectedLogDialog";
 import { Trash2 } from "lucide-react";
+import { type RowComponentProps, List } from 'react-window';
 import { Button } from "../ui/button";
 
 const defaultStyle = "bg-zinc-500/10 text-zinc-400 border-zinc-500/30";
+
+interface LogData {
+    items: NetworkLog[]
+    onSelect: (log: NetworkLog) => void
+}
+
+const Log = ({index, style, ariaAttributes, items, onSelect}: RowComponentProps<LogData>) => {
+    const log = items[index];
+    const { request, response } = log;
+    const statusCode = response?.statusCode ?? 0;
+    const customBadgeClass =
+        methodStyles[request.method] || defaultStyle;
+    const statusBadgeClass = getStatusStyle(statusCode);
+
+    return (
+        <div 
+            style={style}
+            {...ariaAttributes}
+            className="flex items-center border-b border-zinc-900 px-4 hover:bg-zinc-900/30 text-xs text-zinc-300 transition-colors cursor-pointer p-3" onClick={() => onSelect(log)}>
+            <div className="w-24 shrink-0 flex items-center">
+                <Badge
+                    variant="outline"
+                    className={`tracking-wide font-bold px-2 py-0.5 rounded ${customBadgeClass}`}
+                >
+                    {request.method}
+                </Badge>
+            </div>
+            <div className="w-28 shrink-0 flex items-center">
+                <Badge
+                    variant="outline"
+                    className={`tracking-wide font-bold px-2 py-0.5 rounded ${statusBadgeClass}`}
+                >
+                    {statusCode || "Pending"}
+                </Badge>
+            </div>
+            <div className="w-42 shrink-0 flex items-center">
+                <Badge
+                    variant="ghost"
+                    className={`tracking-wide font-bold px-2 py-0.5 rounded`}
+                >
+                    {response?.headers["content-length"] || "--"}
+                </Badge>
+            </div>
+            <div className="w-64 shrink-0 truncate pr-4 text-zinc-400">
+                {request.destination}
+            </div>
+            <div className="flex-1 max-w-lg truncate text-zinc-200">
+                {request.path}
+            </div>
+        </div>
+    )
+}
 
 const Logs = () => {
     const { networkLogs, setSelectedNetworkLog, onClearNetworkLogs } = useAppStore();
@@ -33,50 +86,13 @@ const Logs = () => {
                 </div>
 
                 <div className="flex-1 min-h-0 max-w-[90vw] h-full w-full flex flex-col border-t  overflow-auto">
-                <section className="flex flex-col ">
-                    {networkLogs.map((log) => {
-                        const { request, response } = log;
-                        const statusCode = response?.statusCode ?? 0;
-                        const customBadgeClass =
-                            methodStyles[request.method] || defaultStyle;
-                        const statusBadgeClass = getStatusStyle(statusCode);
-
-                        return (
-                            <div className="flex items-center border-b border-zinc-900 px-4 hover:bg-zinc-900/30 text-xs text-zinc-300 transition-colors cursor-pointer p-3" onClick={() => onLogSelection(log)}>
-                                <div className="w-24 shrink-0 flex items-center">
-                                    <Badge
-                                        variant="outline"
-                                        className={`tracking-wide font-bold px-2 py-0.5 rounded ${customBadgeClass}`}
-                                    >
-                                        {request.method}
-                                    </Badge>
-                                </div>
-                                <div className="w-28 shrink-0 flex items-center">
-                                    <Badge
-                                        variant="outline"
-                                        className={`tracking-wide font-bold px-2 py-0.5 rounded ${statusBadgeClass}`}
-                                    >
-                                        {statusCode || "Pending"}
-                                    </Badge>
-                                </div>
-                                <div className="w-42 shrink-0 flex items-center">
-                                    <Badge
-                                        variant="ghost"
-                                        className={`tracking-wide font-bold px-2 py-0.5 rounded`}
-                                    >
-                                        {response?.headers["content-length"] || "--"}
-                                    </Badge>
-                                </div>
-                                <div className="w-64 shrink-0 truncate pr-4 text-zinc-400">
-                                    {request.destination}
-                                </div>
-                                <div className="flex-1 max-w-lg truncate text-zinc-200">
-                                    {request.path}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </section>
+                    <List<LogData>
+                        style={{ height: window.innerHeight - 150 , width: "100%"}}
+                        rowCount={networkLogs.length}
+                        rowHeight={56}
+                        rowProps={{ items: networkLogs, onSelect: onLogSelection }}
+                        rowComponent={Log}
+                    />
                 </div>
             </div>
         </>
