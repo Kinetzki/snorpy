@@ -1,7 +1,7 @@
 import { TooltipProvider } from "./components/ui/tooltip";
 import { Route, Routes } from "react-router-dom";
 import Proxy from "./components/proxy/Proxy";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IRequest, IResponse } from "./interfaces/logInterfaces";
 import { useAppStore } from "./stores/AppStore";
 import Sidebar from "./components/sidebar/Sidebar";
@@ -12,8 +12,10 @@ import { IRepeaterResponse } from "./interfaces/repeaterInterfaces";
 import { toast } from "sonner";
 import { IIntruderResponse } from "./interfaces/intruderInterfaces";
 import useIntruderStore from "./stores/IntruderStore";
+import { cn } from "./lib/utils";
 
 const App = () => {
+    const [ collapsed, setCollapsed ] = useState(false);
     const { onNewRequest, onNewResponse } = useAppStore();
     const { onNewInterceptedRequest, onClearInterceptedRequest } = useProxyStore();
     const { onRepeatResponse } = useRepeaterStore();
@@ -63,8 +65,11 @@ const App = () => {
 
     return (
         <TooltipProvider>
-            <main className="max-w-screen max-h-screen min-w-screen min-h-screen bg-background text-foreground overflow-hidden grid grid-cols-[300px_auto]">
-                <Sidebar/>
+            <main className={cn(
+                "max-w-screen max-h-screen min-w-screen min-h-screen bg-background text-foreground overflow-hidden grid transition-[grid-template-columns] duration-200",
+                collapsed ? "grid-cols-[64px_auto]" : "grid-cols-[300px_auto]"
+            )}>
+                <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
                 <div className="w-full min-h-full">
                     <Routes>
                         <Route path="/proxy/*" element={<Proxy />} />
