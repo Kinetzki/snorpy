@@ -43,10 +43,10 @@ const RequestViewer:React.FC<RequestViewerProps> = ({ request, allowEdit=false, 
           <TabsTrigger value="body">Body</TabsTrigger>
           <TabsTrigger value="params">Params</TabsTrigger>
         </TabsList>
-        <TabsContent value="headers" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col">
+        <TabsContent value="headers" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col p-2">
           <RequestHeader headers={request.headers} allowEdit={allowEdit} onHeaderValueChange={onHeaderValueChange} onHeaderRemove={onHeaderRemove} isHighlightPayloadPositions={isHighlightPayloadPositions} />
         </TabsContent>
-        <TabsContent value="body" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col">
+        <TabsContent value="body" className="flex-1 min-h-0 data-[state=active]:flex data-[state=active]:flex-col p-2">
           {(allowEdit && !!onBodyChange) ? (
             <CodeEditor 
               height="100%"

@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 
 const Intruder = () => {
-    const { intruderRequest, intruderPayloads, onAddIntruderPayload, onClearIntruderPayloads, onIntruderRequestBodyChange, onIntruderRequestHeaderChange, onIntruderRequestHeaderRemove, isIntruderRunning, onStartIntruder, onIntruderStopped } = useIntruderStore();
+    const { intruderRequest, intruderPayloads, onAddIntruderPayload, onClearIntruderPayloads, onIntruderRequestBodyChange, onIntruderRequestHeaderChange, onIntruderRequestHeaderRemove, isIntruderRunning, onStartIntruder, onIntruderStopped, concurrency, onSetIntruderConcurrency } = useIntruderStore();
     const [ newPayload, setNewPayload ] = useState<string>("");
 
     const onNewPayloadChange = (payload: string) => {
@@ -66,7 +66,7 @@ const Intruder = () => {
         if (!intruderRequest) return;
         if (intruderPayloads.length === 0) return;
         onStartIntruder();
-        window.snorpy.startIntruder(intruderRequest, intruderPayloads, 10);
+        window.snorpy.startIntruder(intruderRequest, intruderPayloads, concurrency);
         toast.success("Intruder started successfully", { position: "top-center" });
     }
 
@@ -74,6 +74,10 @@ const Intruder = () => {
         onIntruderStopped();
         window.snorpy.stopIntruder();
         toast.success("Intruder stopped successfully", { position: "top-center" });
+    }
+
+    const onConcurrencyChange = (concurrency: string) => {
+        onSetIntruderConcurrency(parseInt(concurrency));
     }
 
     return (
@@ -109,7 +113,7 @@ const Intruder = () => {
                     </TabsContent>
                 </Tabs>
             </section>
-            <section className='bg-secondary/50 grid grid-rows-[40px_100px_140px_1fr_50px] min-h-0 h-full w-full'>
+            <section className='bg-secondary/50 grid grid-rows-[40px_100px_200px_1fr_50px] min-h-0 h-full w-full'>
                 {/* Payload settings section, selecting of file or manual adding of payload*/}
                 <h1 className="p-2 font-semibold text-zinc-200 border-b">Intruder Settings</h1>
 
@@ -135,6 +139,12 @@ const Intruder = () => {
                                     onPayloadAdd(newPayload);
                                 }
                             }}
+                        />
+                        <FieldLabel>Concurrency</FieldLabel>
+                        <Input 
+                            type="number" 
+                            value={concurrency} 
+                            onChange={(e) => onConcurrencyChange(e.target.value)} 
                         />
                     </Field>
                     <section className="p-2 flex items-center gap-2 w-full justify-center">
