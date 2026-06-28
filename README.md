@@ -1,10 +1,12 @@
 # Snorpy
 
-**An open-source, desktop web security testing suite — built for pentesters who want a modern, hackable alternative.**
+**An open-source, desktop web security testing suite — early, hackable, and built for pentesters and web devs.**
 
-Snorpy is a cross-platform MITM proxy and offensive security toolkit. It runs as a local Electron app, intercepts HTTP(S) traffic, and gives you the core workflows you already know from tools like Burp Suite — Repeater, Intruder, request interception, and traffic logging — without the licensing friction.
+Snorpy is a cross-platform MITM proxy toolkit in active development. It runs locally as an Electron app, intercepts HTTP(S) traffic, and ships the core workflows you know from Burp Suite — proxy, Repeater, Intruder, and traffic logging — on a modern React/TypeScript stack you can actually fork and extend.
 
-> **Status:** Early and actively developed. Proxy, Repeater, and Intruder are working. Spider, Decoder, Comparer, and more are on the roadmap — see [What's next](#whats-next).
+> **Status:** Early development — not a full Burp replacement yet. **Proxy, Repeater, and Intruder work today.** Spider, Decoder, Comparer, and more are planned — see [What's next](#whats-next).
+>
+> **Looking for testers and contributors.** Try it against a lab app (DVWA, Juice Shop, etc.), [open an issue](https://github.com/Kinetzki/snorpy/issues) with feedback, or pick something from [Good first issues](#good-first-issues) below.
 
 [![GitHub stars](https://img.shields.io/github/stars/Kinetzki/snorpy?style=flat&logo=github)](https://github.com/Kinetzki/snorpy/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Kinetzki/snorpy?style=flat&logo=github)](https://github.com/Kinetzki/snorpy/network/members)
@@ -57,20 +59,23 @@ Mark payload positions in requests, load wordlists, tune concurrency, and review
 
 ## Why Snorpy?
 
-| | Burp / commercial suites | Snorpy |
+| | Burp / commercial suites | Snorpy (today) |
 |---|---|---|
 | **Cost** | Paid licenses | Free & open source (Apache 2.0) |
 | **Stack** | Closed, JVM-based | Electron + React + TypeScript — familiar to web devs |
 | **Extensibility** | Limited without extensions API | Fork it, ship a feature, open a PR |
 | **UI** | Dated | Modern dark UI with Monaco editor, Tailwind, shadcn/ui |
+| **Maturity** | Production-ready | Early — core tools work, roadmap is open |
 
-If you do web app pentests **or** build full-stack apps, you can contribute meaningfully here — whether that's a new fuzzing mode, a decoder tab, or making the proxy handle edge cases you've hit in the wild.
+Whether you pentest web apps or build full-stack software, there's room to help — fuzzing modes, a decoder tab, proxy edge cases you've hit in the wild, or just bug reports from real use.
 
 ---
 
 ## Features
 
-### Proxy
+### Working today
+
+#### Proxy
 
 - **HTTP(S) intercepting proxy** powered by [mockttp](https://github.com/httptoolkit/mockttp), default port `8080`
 - **Automatic CA certificate** generation and download for trusting HTTPS traffic
@@ -78,13 +83,13 @@ If you do web app pentests **or** build full-stack apps, you can contribute mean
 - **Request interception** — hold, inspect, modify, forward, or drop in-flight requests
 - **Traffic history** — browse captured requests and responses with syntax-highlighted viewers
 
-### Repeater
+#### Repeater
 
 - Send a captured request to Repeater and tweak headers, body, and URL
 - Live response viewer with status-code styling
 - Ideal for manual parameter tampering, auth bypass attempts, and quick PoCs
 
-### Intruder
+#### Intruder
 
 - **Payload fuzzing** with `§placeholder§` markers in URL, headers, or body
 - Import payloads from `.txt` wordlists or add them one-by-one
@@ -93,7 +98,7 @@ If you do web app pentests **or** build full-stack apps, you can contribute mean
 
 ### Coming soon
 
-The sidebar already sketches the roadmap: **Spider**, **Decoder**, **Comparer**, **Buster**, **AI Analyzer**, reporting (site map, log export), and settings. These are great first-contribution targets.
+The sidebar already sketches the roadmap: **Spider**, **Decoder**, **Comparer**, **Buster**, **AI Analyzer**, reporting (site map, log export), and settings. These are the best places to start if you want to contribute.
 
 ---
 
@@ -117,10 +122,67 @@ This starts the Vite dev server and launches the Electron app with hot reload.
 
 ### Use the proxy
 
-1. Start the proxy from the **Proxy** panel (toggle it on).
-2. Download the **CA certificate** and install it in your browser or OS trust store.
-3. Point your browser or tool at `127.0.0.1:8080`.
-4. Browse traffic under **Logs**, intercept under **Interceptor**, and send interesting requests to **Repeater** or **Intruder**.
+1. Open the **Proxy** tab and turn the proxy **on** (toggle in the top bar).
+2. Set your browser or tool to use `127.0.0.1` and the port shown (default **8080**).
+3. Browse traffic under **Logs**, intercept under **Interceptor**, and send interesting requests to **Repeater** or **Intruder**.
+
+> HTTPS traffic will fail or show certificate errors until you install Snorpy's CA certificate — follow the steps below.
+
+### Install the SSL certificate
+
+Snorpy generates a local CA to decrypt HTTPS. You must trust it before intercepted TLS traffic will load correctly.
+
+1. In the **Proxy** tab, start the proxy if it is not already running.
+2. Click the **SSL Certificate** download button in the top bar (next to the label **SSL Certificate**).
+3. Save the file — it downloads as `snorpy.crt`.
+4. Install `snorpy.crt` as a **trusted root CA** on your system or browser (steps vary by platform):
+
+#### Windows
+
+1. Double-click `snorpy.crt` → **Install Certificate**.
+2. Choose **Local Machine** (admin) or **Current User**.
+3. Select **Place all certificates in the following store** → **Browse** → **Trusted Root Certification Authorities** → OK.
+4. Finish the wizard and confirm the security prompt.
+5. Restart your browser.
+
+#### macOS
+
+1. Double-click `snorpy.crt` to open **Keychain Access** (or drag the file into the **System** or **login** keychain).
+2. Find the Snorpy / mockttp CA entry, double-click it.
+3. Expand **Trust** → set **When using this certificate** to **Always Trust**.
+4. Close the dialog and enter your password if prompted.
+5. Restart your browser.
+
+#### Linux
+
+**Debian / Ubuntu**
+
+```bash
+sudo cp snorpy.crt /usr/local/share/ca-certificates/snorpy.crt
+sudo update-ca-certificates
+```
+
+**Fedora / RHEL**
+
+```bash
+sudo cp snorpy.crt /etc/pki/ca-trust/source/anchors/snorpy.crt
+sudo update-ca-trust
+```
+
+Restart your browser after installing.
+
+#### Firefox
+
+Firefox uses its own certificate store by default:
+
+1. **Settings** → **Privacy & Security** → **Certificates** → **View Certificates**.
+2. **Authorities** tab → **Import** → select `snorpy.crt`.
+3. Check **Trust this CA to identify websites** → OK.
+4. Restart Firefox.
+
+#### Verify
+
+With the proxy running and the cert installed, visit an HTTPS site. You should see the request appear in **Proxy → Logs** without browser certificate warnings.
 
 ### Build a distributable
 
@@ -170,7 +232,11 @@ snorpy/
 
 ## Contributing
 
-Contributions are welcome — bug reports, feature PRs, docs, and UX polish all help.
+This project is in soft launch — feedback from real use matters as much as code. Bug reports, feature PRs, docs, and UX polish all help.
+
+1. **Try it** — run against a lab target and note what breaks or feels rough
+2. **Discuss** — [open an issue](https://github.com/Kinetzki/snorpy/issues) before large changes
+3. **Ship** — fork, branch, keep PRs focused, run `npm run lint`, open a PR against `main`
 
 ### Good first issues
 
@@ -185,13 +251,8 @@ Contributions are welcome — bug reports, feature PRs, docs, and UX polish all 
 ### Development workflow
 
 1. Fork the repo and create a branch: `git checkout -b feat/my-feature`
-2. Make your changes and keep PRs focused — one feature or fix per PR
-3. Run the linter before opening a PR:
-
-   ```bash
-   npm run lint
-   ```
-
+2. Make your changes — one feature or fix per PR
+3. Run `npm run lint` before opening the PR
 4. Open a PR against `main` with a short description of **what** changed and **why**
 
 ### Code conventions
@@ -216,7 +277,7 @@ High-level roadmap (not set in stone — community input welcome):
 - [ ] Project & scope persistence
 - [ ] Plugin or extension hook (TBD)
 
-Star the repo if you want updates, and watch **Releases** for packaged builds as they land.
+**Star** the repo to follow along, **watch Releases** for packaged builds, and open an issue if you try Snorpy — even a short "worked / didn't work on X" report helps.
 
 ---
 
