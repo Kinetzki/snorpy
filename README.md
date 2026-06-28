@@ -27,6 +27,34 @@ Snorpy is a cross-platform MITM proxy and offensive security toolkit. It runs as
 
 ---
 
+## Screenshots
+
+### Proxy — target scoping
+
+Scope traffic to specific domains and browse captured hosts from the sidebar.
+
+<img src="docs/screenshots/proxy-target-screenshot.png" alt="Proxy target view with domain list and target scope configuration" width="900" />
+
+### Proxy — traffic logs
+
+Inspect intercepted requests with method, status, length, destination, and path at a glance.
+
+<img src="docs/screenshots/proxy-logs-screenshot.png" alt="Proxy logs table showing intercepted HTTP traffic" width="900" />
+
+### Repeater
+
+Edit headers and body, resend requests, and compare responses side-by-side.
+
+<img src="docs/screenshots/repeater-tool-screenshot.png" alt="Repeater tool with editable request and response viewers" width="900" />
+
+### Intruder
+
+Mark payload positions in requests, load wordlists, tune concurrency, and review fuzz results.
+
+<img src="docs/screenshots/intruder-tool-screenshot.png" alt="Intruder tool with request editor, payload settings, and wordlist configuration" width="900" />
+
+---
+
 ## Why Snorpy?
 
 | | Burp / commercial suites | Snorpy |

@@ -85,7 +85,7 @@ const Intruder = () => {
             <section className="bg-card/70 flex items-center px-6 border-b col-span-2">
                 <h1 className="font-semibold text-zinc-200">Intruder</h1>
             </section>
-            <section className='border-r p-2 h-full min-h-0'>
+            <section className='border-r p-2 h-full min-h-0 min-w-0'>
                 {/* Tabs for Request, Response Table */}
                 <Tabs defaultValue="request" className="h-full min-h-0">
                     <TabsList variant="line">
