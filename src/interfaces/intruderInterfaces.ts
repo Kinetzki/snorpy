@@ -9,6 +9,8 @@ export interface IIntruderResponse {
 
 export interface IIntruderStore {
     isIntruderRunning: boolean
+    concurrency: number
+    onSetIntruderConcurrency: (concurrency: number) => void
     onStartIntruder: () => void
     onIntruderStopped: () => void
     intruderRequest: IRequest | null,

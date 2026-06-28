@@ -162,13 +162,18 @@ export class Intruder {
     private async sendRequestBatch(requestBatches: IIntruderRequest[][]) {
         // create axios promise with signal for each request
         for (const requestBatch of requestBatches) {
-            if (this.isStopIntruder) break;
-            const promises = requestBatch.map(request => this.sendRequest(request));
+            
+            const promises = requestBatch.map(request => {
+                if (this.isStopIntruder) return null;
+                return this.sendRequest(request)
+            });
 
-            const responses = await Promise.allSettled(promises);
+            const responses = await Promise.allSettled(promises.filter(Boolean));
+            if (this.isStopIntruder) break;
 
             for (const result of responses) {
                 if (result.status === 'fulfilled') {
+                    if (!result.value) continue;
                     const { request, response, error, payload } = result.value;
                     if (error) {
                         this.webContents.send("intruder:response", {

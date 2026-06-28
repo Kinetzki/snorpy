@@ -67,13 +67,13 @@ const Intruder = () => {
         if (intruderPayloads.length === 0) return;
         onStartIntruder();
         window.snorpy.startIntruder(intruderRequest, intruderPayloads, 10);
-        toast.success("Intruder started successfully");
+        toast.success("Intruder started successfully", { position: "top-center" });
     }
 
     const onStopIntruder = () => {
         onIntruderStopped();
         window.snorpy.stopIntruder();
-        toast.success("Intruder stopped successfully");
+        toast.success("Intruder stopped successfully", { position: "top-center" });
     }
 
     return (
@@ -145,7 +145,7 @@ const Intruder = () => {
                 
                 {/* List rendering for all payloads in the store */}
                 <section className="p-2 flex items-center gap-2 min-h-0 overflow-y-auto h-full w-full border-b py-4 ">
-                    <section className="flex flex-col gap-2 min-h-0 h-full w-full bg-accent rounded-md p-2">
+                    <section className="flex flex-col gap-2 min-h-0 h-full w-full rounded-md p-2">
                         {intruderPayloads.map((payload) => (
                             <p className="text-zinc-200 border-b" key={payload}>{payload}</p>
                         ))}

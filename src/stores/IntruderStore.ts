@@ -7,8 +7,13 @@ const useIntruderStore = create<IIntruderStore>((set) => ({
     intruderResponses: [],
     selectedIntruderResponse: null,
     intruderPayloads: [],
+    concurrency: 10,
+    onSetIntruderConcurrency: (concurrency) => set({
+        concurrency: concurrency
+    }),
     onStartIntruder: () => set({
-        isIntruderRunning: true
+        isIntruderRunning: true,
+        intruderResponses: []
     }),
     onIntruderStopped: () => set({
         isIntruderRunning: false

@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { getStatusStyle } from '@/lib/utils';
 // import { IIntruderResponse } from '@/interfaces/intruderInterfaces';
 import SelectedIntruderLog from './SelectedIntruderLog';
+import { type RowComponentProps, List } from 'react-window';
+import { IIntruderResponse } from '@/interfaces/intruderInterfaces';
 
 // const sampleIntruderResponses: IIntruderResponse[] = [
 //     {
@@ -26,9 +28,53 @@ import SelectedIntruderLog from './SelectedIntruderLog';
 //         }
 //     }
 // ];
+interface RowData {
+    items: IIntruderResponse[]
+    onSelect: (res: IIntruderResponse | null) => void
+}
+
+const Row = ({ index, style, ariaAttributes, items, onSelect }: RowComponentProps<RowData>) => {
+    const { response, payload, request } = items[index];
+    const statusCode = response?.statusCode ?? 0;
+    const responseLength = response?.headers["content-length"] ?? 0;
+    const statusBadgeClass = getStatusStyle(statusCode);
+
+    return (
+        <div
+            style={style}
+            {...ariaAttributes}
+            className="flex items-center border-b border-zinc-900 px-4 hover:bg-zinc-900/30 text-xs text-zinc-300 transition-colors cursor-pointer"
+            onClick={() => onSelect(items[index])}
+        >
+            <div className="w-28 shrink-0 flex items-center">
+                <Badge variant="outline" className={`tracking-wide font-bold px-2 py-0.5 rounded ${statusBadgeClass}`}>
+                    {statusCode || "Pending"}
+                </Badge>
+            </div>
+            <div className="w-28 shrink-0 flex items-center">
+                <Badge variant="outline" className="tracking-wide font-bold px-2 py-0.5 rounded text-cyan-300">
+                    {payload || "Pending"}
+                </Badge>
+            </div>
+            <div className="w-42 shrink-0 flex items-center">
+                <Badge variant="outline" className={`tracking-wide font-bold px-2 py-0.5 rounded ${getStatusStyle(Number(responseLength))}`}>
+                    {responseLength || "Pending"}
+                </Badge>
+            </div>
+            <div className="w-64 shrink-0 truncate pr-4 text-zinc-400">
+                {request.destination}
+            </div>
+            <div className="flex-1 max-w-lg truncate text-zinc-200">
+                {request.path}
+            </div>
+        </div>
+    );
+};
 
 const ResponsesTable = () => {
     const { intruderResponses, onSelectIntruderResponse } = useIntruderStore();
+
+    
 
     return (
         <>
@@ -43,7 +89,7 @@ const ResponsesTable = () => {
                     <div className="flex-1">Path</div>
                 </div>
                 <div className="flex-1 min-h-0 max-w-[90vw] h-full w-full flex flex-col border-t  overflow-auto">
-                    {intruderResponses.map((intruderResponse) => {
+                    {/* {intruderResponses.map((intruderResponse) => {
                         const { response, payload, request } = intruderResponse;
                         const statusCode = response?.statusCode ?? 0;
                         const responseLength = response?.headers["content-length"] ?? 0;
@@ -60,8 +106,8 @@ const ResponsesTable = () => {
                                         {statusCode ?? "Pending"}
                                     </Badge>
                                 </div>
-                                <div className="w-28 shrink-0 flex items-center">
-                                    <Badge variant="outline" className={`tracking-wide font-bold px-2 py-0.5 rounded ${statusBadgeClass}`}>
+                                <div className="w-38 shrink-0 flex items-center">
+                                    <Badge variant="outline" className={`tracking-wide font-bold px-2 py-0.5 rounded text-cyan-300`}>
                                         {payload ?? "Pending"}
                                     </Badge>
                                 </div>
@@ -78,7 +124,14 @@ const ResponsesTable = () => {
                                 </div>
                             </div>
                         );
-                    })}
+                    })} */}
+                    <List<RowData>
+                        style={{ height: window.innerHeight - 150 , width: "100%"}}
+                        rowCount={intruderResponses.length}
+                        rowHeight={56}
+                        rowProps={{ items: intruderResponses, onSelect: onSelectIntruderResponse }}
+                        rowComponent={Row}
+                    />
                 </div>
             </div>
         </>
